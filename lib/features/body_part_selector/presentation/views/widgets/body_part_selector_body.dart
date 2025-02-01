@@ -1,9 +1,11 @@
 import 'package:body_part_selector/body_part_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:physio_app/core/utils/app_router.dart';
 import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/core/utils/text_styles.dart';
+import 'package:physio_app/features/body_part_selector/data/models/body_parts_model.dart';
 
 class BodyPartSelectorBody extends StatefulWidget {
   const BodyPartSelectorBody({super.key});
@@ -52,11 +54,14 @@ class _BodyPartSelectorBodyState extends State<BodyPartSelectorBody> {
               children: [
                 MaterialButton(
                   color: Colors.blue,
-                  onPressed: () {
-                    debugPrint(_bodyParts.toString());
-                    context.push(AppRouter.pageView);
+                  onPressed: () async {
+                    Hive.box<BodyPartsHiveWrapper>('bodyPartsBox').put(
+                      'selectedParts',
+                      BodyPartsHiveWrapper.fromBodyParts(_bodyParts),
+                    );
+                    context.go(AppRouter.home);
                   },
-                  child: const Text('Print Body Parts'),
+                  child: const Text('Continue'),
                 ),
                 SizedBox(
                   width: 20,

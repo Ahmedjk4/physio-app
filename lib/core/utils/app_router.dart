@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:physio_app/features/auth/presetation/views/auth_view.dart';
+import 'package:physio_app/features/auth/presetation/views/forgot_password_view.dart';
 import 'package:physio_app/features/auth/presetation/views/login_view.dart';
 import 'package:physio_app/features/auth/presetation/views/register_view.dart';
 import 'package:physio_app/features/body_part_selector/presentation/views/body_part_selector_view.dart';
-import 'package:physio_app/features/home/presentation/views/home_view.dart';
 import 'package:physio_app/features/home/presentation/views/page_view.dart';
 import 'package:physio_app/features/onboarding/presentation/views/onboarding_view.dart';
 import 'package:physio_app/features/splash/presentation/views/splash_view.dart';
@@ -18,7 +18,7 @@ class AppRouter {
   static const String login = '/login';
   static const String register = '/register';
   static const String bodyPartSelector = '/body-part-selector';
-  static const String pageView = '/page-view';
+  static const String forgotPassword = '/forgot-password';
   static final GoRouter router = GoRouter(
     routes: <GoRoute>[
       GoRoute(
@@ -74,15 +74,15 @@ class AppRouter {
         pageBuilder: (context, state) => buildPageWithSlideLeftTransition(
           context: context,
           state: state,
-          child: HomeView(),
+          child: SelectorPageView(),
         ),
       ),
       GoRoute(
-        path: pageView,
+        path: forgotPassword,
         pageBuilder: (context, state) => buildPageWithSlideLeftTransition(
           context: context,
           state: state,
-          child: SelectorPageView(),
+          child: ForgotPasswordView(),
         ),
       ),
     ],

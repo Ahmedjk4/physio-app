@@ -2,16 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:physio_app/core/helpers/showSnackBar.dart';
 import 'package:physio_app/core/types/text_form_field_types.dart';
 import 'package:physio_app/core/utils/app_router.dart';
 import 'package:physio_app/core/utils/colors.dart';
+import 'package:physio_app/core/utils/service_locator.dart';
 import 'package:physio_app/core/utils/text_styles.dart';
 import 'package:physio_app/core/widgets/custom_button.dart';
 import 'package:physio_app/core/widgets/custom_text_form_field.dart';
+import 'package:physio_app/features/auth/data/repos/auth_repo_impl.dart';
 
-class LoginViewBody extends StatelessWidget {
+class LoginViewBody extends StatefulWidget {
   const LoginViewBody({super.key});
 
+  @override
+  State<LoginViewBody> createState() => _LoginViewBodyState();
+}
+
+class _LoginViewBodyState extends State<LoginViewBody> {
+  final TextEditingController emailController = TextEditingController();
+
+  final TextEditingController passwordController = TextEditingController();
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -28,14 +44,38 @@ class LoginViewBody extends StatelessWidget {
             SizedBox(height: 20.0.h),
             const _DividerWithText(),
             SizedBox(height: 20.0.h),
-            const _LoginForm(),
-            SizedBox(height: 20.0.h),
-            CustomButton(
-              text: 'Continue',
-              callback: () {
-                context.push(AppRouter.bodyPartSelector);
-              },
+            _LoginForm(
+              emailController,
+              passwordController,
+              _formKey,
+              _autovalidateMode,
             ),
+            ForgotPasswordText(),
+            CustomButton(
+                text: 'Continue',
+                callback: () async {
+                  if (mounted) {
+                    if (_formKey.currentState!.validate()) {
+                      await getIt
+                          .get<AuthRepoImpl>()
+                          .signInWithEmailAndPassword(
+                              emailController.text, passwordController.text)
+                          .then(
+                        (value) {
+                          value.fold((f) {
+                            showSnackBar(context, f.message);
+                          }, (s) {
+                            showSnackBar(context, s.message);
+                          });
+                        },
+                      );
+                    } else {
+                      setState(() {
+                        _autovalidateMode = AutovalidateMode.always;
+                      });
+                    }
+                  }
+                }),
             SizedBox(height: 20.0.h),
             RegisterText(),
           ],
@@ -52,13 +92,15 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            FontAwesomeIcons.arrowLeft,
-            color: AppColors.textColorPrimary,
-          ),
-        ),
+        Hive.box('settings').get('finsihedOnboarding', defaultValue: false)
+            ? IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  FontAwesomeIcons.arrowLeft,
+                  color: AppColors.textColorPrimary,
+                ),
+              )
+            : Container(),
         SizedBox(width: 20.0.w),
         Text(
           "Login",
@@ -100,7 +142,17 @@ class _SocialButtons extends StatelessWidget {
         _buildSocialButton(
           color: AppColors.accentColor,
           icon: FontAwesomeIcons.google,
-          onPressed: () {},
+          onPressed: () async {
+            await getIt.get<AuthRepoImpl>().signInWithGoogle().then(
+                  (value) => {
+                    value.fold((f) {
+                      showSnackBar(context, f.message);
+                    }, (s) {
+                      showSnackBar(context, s.message);
+                    }),
+                  },
+                );
+          },
         ),
         SizedBox(width: 20.0.w),
         _buildSocialButton(
@@ -161,32 +213,60 @@ class _DividerWithText extends StatelessWidget {
 }
 
 class _LoginForm extends StatelessWidget {
-  const _LoginForm();
+  const _LoginForm(this.emailController, this.passwordController, this.formKey,
+      this.autovalidateMode);
+
+  final TextEditingController emailController;
+  final TextEditingController passwordController;
+  final GlobalKey<FormState> formKey;
+  final AutovalidateMode autovalidateMode;
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: formKey,
+      autovalidateMode: autovalidateMode,
+      child: Column(
+        children: [
+          CustomTextField(
+            hintText: 'Enter Your Email',
+            label: 'Email',
+            controller: emailController,
+            type: TextFormFieldTypes.email,
+            icon: Icons.mail,
+            iconColor: Colors.amber,
+          ),
+          SizedBox(height: 10.0.h),
+          CustomTextField(
+            hintText: 'Enter Your Password',
+            label: 'Password',
+            controller: passwordController,
+            type: TextFormFieldTypes.password,
+            icon: Icons.lock,
+            iconColor: Colors.purple,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ForgotPasswordText extends StatelessWidget {
+  const ForgotPasswordText({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-
-    return Column(
+    return Row(
       children: [
-        CustomTextField(
-          hintText: 'Enter Your Email',
-          label: 'Email',
-          controller: emailController,
-          type: TextFormFieldTypes.email,
-          icon: Icons.mail,
-          iconColor: Colors.amber,
-        ),
-        SizedBox(height: 10.0.h),
-        CustomTextField(
-          hintText: 'Enter Your Password',
-          label: 'Password',
-          controller: passwordController,
-          type: TextFormFieldTypes.password,
-          icon: Icons.lock,
-          iconColor: Colors.purple,
-        ),
+        TextButton(
+            onPressed: () async {
+              context.push(AppRouter.forgotPassword);
+            },
+            child: Text(
+              'Forgot Password',
+              style: TextStyles.bodyText1.copyWith(
+                color: AppColors.accentColor,
+              ),
+            ))
       ],
     );
   }

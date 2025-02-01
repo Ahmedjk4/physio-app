@@ -41,6 +41,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
+        style: const TextStyle(color: Colors.white),
         keyboardType: getInputType(widget.type),
         validator: (value) {
           if (value == null || value.isEmpty) {

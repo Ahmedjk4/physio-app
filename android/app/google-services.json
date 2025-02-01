@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "793741194649",
+    "project_id": "physio-app-732b6",
+    "storage_bucket": "physio-app-732b6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793741194649:android:9e7f8779b78e849db58f08",
+        "android_client_info": {
+          "package_name": "com.mohamed.physio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjgpTKAFyHglbE0j7koYnSIQIYwes-Qyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

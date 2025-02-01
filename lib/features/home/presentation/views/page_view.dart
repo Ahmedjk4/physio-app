@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:physio_app/features/home/presentation/views/home_view.dart';
+import 'package:physio_app/features/home/presentation/views/profile_view.dart';
 
 class SelectorPageView extends StatefulWidget {
   const SelectorPageView({super.key});
@@ -10,28 +11,41 @@ class SelectorPageView extends StatefulWidget {
 
 class _SelectorPageViewState extends State<SelectorPageView> {
   int _selectedIndex = 0;
+  final PageController pageController = PageController();
 
-  static const List<Widget> _widgetOptions = <Widget>[
+  final List<Widget> _widgetOptions = <Widget>[
     HomeView(),
+    Container(color: Colors.green),
+    ProfileView(),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Physio App'),
+        leading: const SizedBox.shrink(),
+        centerTitle: true,
+        title: const Text('Physio App'),
       ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+      body: PageView(
+        controller: pageController,
+        children: _widgetOptions,
+        onPageChanged: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -50,5 +64,11 @@ class _SelectorPageViewState extends State<SelectorPageView> {
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    super.dispose();
   }
 }

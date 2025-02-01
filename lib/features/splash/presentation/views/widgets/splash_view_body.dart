@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:physio_app/core/utils/app_router.dart';
 import 'package:physio_app/core/utils/assets.dart';
@@ -24,7 +25,9 @@ class _SplashViewBodyState extends State<SplashViewBody> {
   Future<void> _navigateToNextScreen() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
-      context.go(AppRouter.onboarding);
+      await Hive.box('settings').get('finishedOnboarding', defaultValue: false)
+          ? context.go(AppRouter.auth)
+          : context.go(AppRouter.onboarding);
     }
   }
 
