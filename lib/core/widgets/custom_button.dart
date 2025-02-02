@@ -5,10 +5,12 @@ import 'package:physio_app/core/utils/text_styles.dart';
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback callback;
+  final Color? color;
   const CustomButton({
     super.key,
     required this.text,
     required this.callback,
+    this.color,
   });
 
   @override
@@ -16,7 +18,8 @@ class CustomButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(10)),
+          color: color ?? Colors.white,
+          borderRadius: BorderRadius.circular(10)),
       child: Material(
         borderRadius: BorderRadius.circular(10),
         color: Colors.transparent,

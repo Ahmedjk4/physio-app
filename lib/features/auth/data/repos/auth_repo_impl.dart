@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -48,6 +49,11 @@ class AuthRepoImpl implements AuthRepo {
           .createUserWithEmailAndPassword(email: email, password: password);
       await FirebaseAuth.instance.signOut();
       await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
+      await FirebaseFirestore.instance.collection('users').doc(email).set({
+        'name': name,
+        'email': email,
+        'role': 'user',
+      });
       return right(Success('Signed up successfully, Please Login'));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
