@@ -15,20 +15,27 @@ class AuthView extends StatelessWidget {
     return storedWrapper?.selectedBodyParts.containsValue(true) ?? false;
   }
 
-  Widget _authStateHandler(User? user) {
-    if (user == null) return const LoginView();
-
-    return FutureBuilder<bool>(
-      future: _hasSelectedBodyParts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return snapshot.data == true
-            ? const SelectorPageView()
-            : const BodyPartSelectorView();
-      },
-    );
+  Widget _authStateHandler(AsyncSnapshot snapshot) {
+    if (snapshot.hasData) {
+      return FutureBuilder<bool>(
+        future: _hasSelectedBodyParts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else {
+            return snapshot.data == true
+                ? const SelectorPageView()
+                : const BodyPartSelectorView();
+          }
+        },
+      );
+    } else {
+      return const LoginView();
+    }
   }
 
   @override
@@ -36,10 +43,7 @@ class AuthView extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return _authStateHandler(snapshot.data);
+        return _authStateHandler(snapshot);
       },
     );
   }

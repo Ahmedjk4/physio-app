@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:physio_app/features/home/presentation/views/chat_view.dart';
 import 'package:physio_app/features/home/presentation/views/home_view.dart';
 import 'package:physio_app/features/home/presentation/views/profile_view.dart';
 
@@ -15,7 +16,7 @@ class _SelectorPageViewState extends State<SelectorPageView> {
 
   final List<Widget> _widgetOptions = <Widget>[
     HomeView(),
-    Container(color: Colors.green),
+    ChatView(),
     ProfileView(),
   ];
 
@@ -51,8 +52,8 @@ class _SelectorPageViewState extends State<SelectorPageView> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Icons.chat),
+            label: 'Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

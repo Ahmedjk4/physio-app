@@ -136,7 +136,15 @@ class _SocialButtons extends StatelessWidget {
         _buildSocialButton(
           color: Colors.yellow,
           icon: FontAwesomeIcons.google,
-          onPressed: () {},
+          onPressed: () async {
+            await getIt.get<AuthRepoImpl>().signInWithGoogle().then((value) {
+              value.fold((f) {
+                showSnackBar(context, f.message);
+              }, (s) {
+                showSnackBar(context, s.message);
+              });
+            });
+          },
         ),
         SizedBox(width: 20.0.w),
         _buildSocialButton(

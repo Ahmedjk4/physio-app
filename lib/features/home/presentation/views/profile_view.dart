@@ -25,7 +25,7 @@ class ProfileViewBody extends StatelessWidget {
   }
 
   Future<void> _resetOnboarding() async {
-    final settingsBox = await Hive.box('settings');
+    final settingsBox = Hive.box('settings');
     await settingsBox.put('finishedOnboarding', false);
   }
 
