@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
+import 'package:physio_app/core/helpers/getAudioDuration.dart';
 import 'package:physio_app/core/utils/assets.dart';
 import 'package:physio_app/features/home/presentation/view_models/cubit/chat_cubit.dart';
 import 'package:physio_app/features/home/presentation/views/widgets/chat_bubble.dart';
 import 'package:physio_app/features/home/presentation/views/widgets/chat_input_field.dart';
+import 'package:voice_message_package/voice_message_package.dart';
 
 class ChatViewBody extends StatelessWidget {
   const ChatViewBody({
@@ -43,6 +45,49 @@ class ChatViewBody extends StatelessWidget {
                                 text: message['message'],
                                 isSentByMe: message['emailOfSender'] ==
                                     currentUserEmail,
+                              );
+                            } else if (message['type'] == 'audio') {
+                              return Row(
+                                mainAxisAlignment:
+                                    message['emailOfSender'] == currentUserEmail
+                                        ? MainAxisAlignment.end
+                                        : MainAxisAlignment.start,
+                                children: [
+                                  FutureBuilder<Duration?>(
+                                    future: getAudioDuration(message['link']),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CircularProgressIndicator(); // Show a loading indicator
+                                      } else if (snapshot.hasError) {
+                                        return const Text(
+                                            "Error loading audio duration");
+                                      } else if (!snapshot.hasData ||
+                                          snapshot.data == null) {
+                                        return const Text(
+                                            "Failed to retrieve duration");
+                                      }
+
+                                      // Build VoiceMessageView with the retrieved duration
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: VoiceMessageView(
+                                          controller: VoiceController(
+                                            audioSrc: message['link'],
+                                            maxDuration: snapshot.data!,
+                                            isFile: false,
+                                            onComplete: () {},
+                                            onPause: () {},
+                                            onPlaying: () {},
+                                            onError: (err) {},
+                                          ),
+                                          innerPadding: 12,
+                                          cornerRadius: 20,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               );
                             } else {
                               return Row(

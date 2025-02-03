@@ -4,23 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:physio_app/core/utils/app_router.dart';
+import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/core/utils/service_locator.dart';
 import 'package:physio_app/features/body_part_selector/data/models/body_parts_model.dart';
 import 'package:physio_app/firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  tz.initializeTimeZones();
-  tz.setLocalLocation(
-      tz.getLocation('Africa/Cairo')); // Replace with your timezone
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -32,19 +24,12 @@ void main() async {
   Hive.registerAdapter(BodyPartsHiveWrapperAdapter());
   await Hive.openBox('settings');
   await Hive.openBox<BodyPartsHiveWrapper>('bodyPartsBox');
+  await Hive.openBox<List<String>>('diet');
   await Supabase.initialize(
     url: 'https://lohceeqayhjedlmvdrcv.supabase.co',
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaGNlZXFheWhqZWRsbXZkcmN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NTQ4NTYsImV4cCI6MjA1NDAzMDg1Nn0.4ERoH6ElqH4M5y3QJFrEJ7AaOLD9qI-DH6dmfA3t_PA',
   );
-  final AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-  );
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
   setupServiceLocator();
   runApp(const PhysioApp());
 }
@@ -63,8 +48,9 @@ class PhysioApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           routerConfig: AppRouter.router,
           title: 'Physio App',
-          theme: ThemeData.dark()
-              .copyWith(scaffoldBackgroundColor: Colors.white12),
+          theme: ThemeData.dark().copyWith(
+            scaffoldBackgroundColor: AppColors.mainColor,
+          ),
         );
       },
     );

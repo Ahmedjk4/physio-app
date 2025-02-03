@@ -1,12 +1,11 @@
 import 'package:dart_openai/dart_openai.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:physio_app/core/helpers/schedule_weekly_notification.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:physio_app/core/helpers/showSnackBar.dart';
+import 'package:physio_app/core/utils/colors.dart';
+import 'package:physio_app/core/utils/text_styles.dart';
 import 'package:physio_app/core/widgets/custom_button.dart';
-import 'dart:convert';
-
-import 'package:physio_app/main.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -22,52 +21,91 @@ class _HomeViewState extends State<HomeView> {
   String? _gender;
   String? _diseases;
   String? _medications;
+  String? _goal;
 
-  List<String> diseases = ['Diabetes', 'Hypertension', 'Heart Disease', 'None'];
+  List<String> diseases = ['السكري', 'ارتفاع ضغط الدم', 'مرض قلبي', 'None'];
   List<String> medications = ['Aspirin', 'Metformin', 'None'];
+  List<String> goal = ['Gain Weight', 'Lose Weight'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Dr. Rana Kadry - Diet Plan')),
+      appBar: AppBar(
+        title: Text('Dr. Rana Kadry - Diet Plan'),
+        backgroundColor: AppColors.secondaryColor,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
             TextField(
+              style: TextStyles.bodyText1.copyWith(color: Colors.black),
               controller: _ageController,
-              decoration: InputDecoration(labelText: 'Age'),
+              decoration: InputDecoration(
+                labelText: 'العمر',
+                labelStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+                hintStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+              ),
               keyboardType: TextInputType.number,
             ),
             TextField(
+              style: TextStyles.bodyText1.copyWith(color: Colors.black),
               controller: _weightController,
-              decoration: InputDecoration(labelText: 'Weight (kg)'),
+              decoration: InputDecoration(
+                labelText: '(kg) الوزن',
+                labelStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+                hintStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+              ),
               keyboardType: TextInputType.number,
             ),
             TextField(
+              style: TextStyles.bodyText1.copyWith(color: Colors.black),
               controller: _heightController,
-              decoration: InputDecoration(labelText: 'Height (cm)'),
+              decoration: InputDecoration(
+                labelText: '(cm) الطول',
+                labelStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+                hintStyle: TextStyles.bodyText1
+                    .copyWith(color: AppColors.textColorPrimary),
+              ),
               keyboardType: TextInputType.number,
             ),
             DropdownButton<String>(
+              dropdownColor: Colors.white,
+              iconEnabledColor: AppColors.textColorPrimary,
               value: _gender,
-              hint: Text('Select Gender'),
+              hint: Text(
+                'اختر النوع',
+                style: TextStyle(color: AppColors.textColorPrimary),
+              ),
               onChanged: (String? newValue) {
                 setState(() {
                   _gender = newValue;
                 });
               },
-              items: ['Male', 'Female']
-                  .map<DropdownMenuItem<String>>((String value) {
+              items:
+                  ['ذكر', 'أنثى'].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(
+                    value,
+                    style: TextStyle(color: AppColors.textColorPrimary),
+                  ),
                 );
               }).toList(),
             ),
             DropdownButton<String>(
+              dropdownColor: Colors.white,
+              iconEnabledColor: AppColors.textColorPrimary,
               value: _diseases,
-              hint: Text('Any Diseases?'),
+              hint: Text(
+                'أي أمراض؟',
+                style: TextStyle(color: AppColors.textColorPrimary),
+              ),
               onChanged: (String? newValue) {
                 setState(() {
                   _diseases = newValue;
@@ -76,13 +114,21 @@ class _HomeViewState extends State<HomeView> {
               items: diseases.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(
+                    value,
+                    style: TextStyle(color: AppColors.textColorPrimary),
+                  ),
                 );
               }).toList(),
             ),
             DropdownButton<String>(
+              dropdownColor: Colors.white,
+              iconEnabledColor: AppColors.textColorPrimary,
               value: _medications,
-              hint: Text('Any Medications?'),
+              hint: Text(
+                'أي أدوية؟',
+                style: TextStyle(color: AppColors.textColorPrimary),
+              ),
               onChanged: (String? newValue) {
                 setState(() {
                   _medications = newValue;
@@ -91,17 +137,47 @@ class _HomeViewState extends State<HomeView> {
               items: medications.map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(
+                    value,
+                    style: TextStyle(color: AppColors.textColorPrimary),
+                  ),
+                );
+              }).toList(),
+            ),
+            DropdownButton<String>(
+              dropdownColor: Colors.white,
+              iconEnabledColor: AppColors.textColorPrimary,
+              value: _goal,
+              hint: Text(
+                'الهدف ؟',
+                style: TextStyle(color: AppColors.textColorPrimary),
+              ),
+              onChanged: (String? newValue) {
+                setState(() {
+                  _goal = newValue;
+                });
+              },
+              items: goal.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    value,
+                    style: TextStyle(color: AppColors.textColorPrimary),
+                  ),
                 );
               }).toList(),
             ),
             CustomButton(
               callback: () {
                 sendDataToAI(context);
-                scheduleWeeklyNotification();
               },
               text: 'Submit Data',
             ),
+            CustomButton(
+                text: 'See Previous Data',
+                callback: () {
+                  context.push('/diet-list');
+                }),
           ],
         ),
       ),
@@ -111,7 +187,7 @@ class _HomeViewState extends State<HomeView> {
   void sendDataToAI(BuildContext context) async {
     // Initialize the OpenAI instance
     OpenAI.apiKey =
-        "g4a-mdouFDNFyJCsWCW4VRqUzyTIqd34fkUYfLY"; // Replace with your OpenAI API key
+        "g4a-qqA9yzxyinSxcnUs8ocsbJHSaoAYgNq7ITy"; // Replace with your OpenAI API key
     OpenAI.baseUrl = "https://api.gpt4-all.xyz";
 
     // Null check for each field, assigning default values if null
@@ -124,6 +200,7 @@ class _HomeViewState extends State<HomeView> {
     String diseases = _diseases ?? "N/A"; // Assuming _diseases could be null
     String medications =
         _medications ?? "N/A"; // Assuming _medications could be null
+    String goals = _goal ?? "Lose Weight";
 
     // Construct the prompt based on the user's input
     String prompt = """
@@ -133,8 +210,10 @@ class _HomeViewState extends State<HomeView> {
   Gender: $gender
   Diseases: $diseases
   Medications: $medications
-  
-  Generate a personalized diet plan based on the information above and talk in arabic , split your response to parts and don't use any markdown marks
+  Goal: $goals
+
+  Based on the information provided, generate a personalized diet plan in Arabic. Please structure your response in clear sections without using any markdown formatting. Ensure the plan is detailed and easy to follow.
+  And show needed calories, protein, carbohydrates, etc.. per day.
   """;
 
     // Create a completion request
@@ -155,7 +234,10 @@ class _HomeViewState extends State<HomeView> {
       // Get the generated diet plan
       String dietPlan = completion.choices.first.message.content?[0].text ??
           "No plan generated";
-
+      var dietBox = Hive.box<List<String>>('diet');
+      List<String> dietList = dietBox.get('list') ?? [];
+      dietList.add(dietPlan);
+      await dietBox.put('list', dietList);
       // Show the response in a bottom sheet
       showModalBottomSheet(
         context: context,

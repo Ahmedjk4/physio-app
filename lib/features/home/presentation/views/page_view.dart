@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/features/home/presentation/views/chat_view.dart';
 import 'package:physio_app/features/home/presentation/views/home_view.dart';
 import 'package:physio_app/features/home/presentation/views/profile_view.dart';
@@ -32,6 +33,7 @@ class _SelectorPageViewState extends State<SelectorPageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: AppColors.secondaryColor,
         leading: const SizedBox.shrink(),
         centerTitle: true,
         title: const Text('Physio App'),
@@ -46,6 +48,7 @@ class _SelectorPageViewState extends State<SelectorPageView> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.secondaryColor,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

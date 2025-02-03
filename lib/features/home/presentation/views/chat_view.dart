@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/features/home/presentation/views/chat_admin_view.dart';
 import 'widgets/chat_view_body.dart';
 
@@ -58,7 +59,7 @@ class _ChatViewState extends State<ChatView> {
             SizedBox(width: 30.w),
           ],
         ),
-        backgroundColor: const Color.fromARGB(255, 166, 166, 184),
+        backgroundColor: AppColors.secondaryColor,
       ),
       body: FutureBuilder<Widget>(
         future: _selectBodyBasedOnRole(),

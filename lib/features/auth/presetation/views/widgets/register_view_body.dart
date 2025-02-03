@@ -37,8 +37,8 @@ class _RegisterViewBodyState extends State<RegisterViewBody> {
             SizedBox(height: 100.0.h),
             const _Logo(),
             SizedBox(height: 50.0.h),
-            const _SocialButtons(),
-            SizedBox(height: 20.0.h),
+            // const _SocialButtons(),
+            // SizedBox(height: 20.0.h),
             const _DividerWithText(),
             SizedBox(height: 20.0.h),
             _RegisterForm(nameController, emailController, passwordController,
@@ -192,7 +192,7 @@ class _DividerWithText extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Or Using Email",
+            "Using Email And Password",
             style: TextStyles.bodyText1.copyWith(
               color: AppColors.textColorPrimary,
             ),
