@@ -3,6 +3,7 @@ import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/features/home/presentation/views/chat_view.dart';
 import 'package:physio_app/features/home/presentation/views/home_view.dart';
 import 'package:physio_app/features/home/presentation/views/profile_view.dart';
+import 'package:physio_app/features/home/presentation/views/videos_view.dart';
 
 class SelectorPageView extends StatefulWidget {
   const SelectorPageView({super.key});
@@ -16,7 +17,8 @@ class _SelectorPageViewState extends State<SelectorPageView> {
   final PageController pageController = PageController();
 
   final List<Widget> _widgetOptions = <Widget>[
-    HomeView(),
+    VideosView(),
+    DietView(),
     ChatView(),
     ProfileView(),
   ];
@@ -53,6 +55,10 @@ class _SelectorPageViewState extends State<SelectorPageView> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Diet',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),

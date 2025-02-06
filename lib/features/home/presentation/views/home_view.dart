@@ -7,14 +7,14 @@ import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/core/utils/text_styles.dart';
 import 'package:physio_app/core/widgets/custom_button.dart';
 
-class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+class DietView extends StatefulWidget {
+  const DietView({super.key});
 
   @override
-  State<HomeView> createState() => _HomeViewState();
+  State<DietView> createState() => _DietViewState();
 }
 
-class _HomeViewState extends State<HomeView> {
+class _DietViewState extends State<DietView> {
   final _ageController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
@@ -226,8 +226,6 @@ class _HomeViewState extends State<HomeView> {
             OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt)
           ], role: OpenAIChatMessageRole.system)
         ],
-        maxTokens:
-            500, // Adjust maxTokens based on the response length you want
         temperature: 0.7, // Adjust based on creativity needed in the response
       );
 
