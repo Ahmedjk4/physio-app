@@ -11,6 +11,7 @@ import 'package:physio_app/features/home/presentation/view_models/cubit/chat_cub
 import 'package:physio_app/features/home/presentation/views/change_name_view.dart';
 import 'package:physio_app/features/home/presentation/views/change_password_view.dart';
 import 'package:physio_app/features/home/presentation/views/page_view.dart';
+import 'package:physio_app/features/home/presentation/views/videos_admin_view.dart';
 import 'package:physio_app/features/home/presentation/views/widgets/chat_view_body.dart';
 import 'package:physio_app/features/home/presentation/views/widgets/diet_list.dart';
 import 'package:physio_app/features/onboarding/presentation/views/onboarding_view.dart';
@@ -139,6 +140,14 @@ class AppRouter {
           context: context,
           state: state,
           child: DietListView(),
+        ),
+      ),
+      GoRoute(
+        path: '/videos-admin',
+        pageBuilder: (context, state) => buildPageWithSlideLeftTransition(
+          context: context,
+          state: state,
+          child: VideosAdminView(),
         ),
       ),
     ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:physio_app/core/utils/colors.dart';
+import 'package:physio_app/core/utils/text_styles.dart';
 import 'package:physio_app/features/home/presentation/views/chat_view.dart';
-import 'package:physio_app/features/home/presentation/views/home_view.dart';
+import 'package:physio_app/features/home/presentation/views/diet_view.dart';
 import 'package:physio_app/features/home/presentation/views/profile_view.dart';
 import 'package:physio_app/features/home/presentation/views/videos_view.dart';
 
@@ -50,6 +51,9 @@ class _SelectorPageViewState extends State<SelectorPageView> {
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
+        unselectedItemColor: Colors.white,
+        unselectedLabelStyle: TextStyle(color: Colors.white),
+        showUnselectedLabels: true,
         backgroundColor: AppColors.secondaryColor,
         items: const [
           BottomNavigationBarItem(
@@ -57,7 +61,7 @@ class _SelectorPageViewState extends State<SelectorPageView> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.fastfood),
             label: 'Diet',
           ),
           BottomNavigationBarItem(

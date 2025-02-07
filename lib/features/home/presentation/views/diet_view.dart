@@ -187,7 +187,7 @@ class _DietViewState extends State<DietView> {
   void sendDataToAI(BuildContext context) async {
     // Initialize the OpenAI instance
     OpenAI.apiKey =
-        "g4a-qqA9yzxyinSxcnUs8ocsbJHSaoAYgNq7ITy"; // Replace with your OpenAI API key
+        "g4a-rxzdjOvQPtsVK6oqqrZ2zgWRANPPAElS7NT"; // Replace with your OpenAI API key
     OpenAI.baseUrl = "https://api.gpt4-all.xyz";
 
     // Null check for each field, assigning default values if null

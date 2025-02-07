@@ -110,7 +110,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         await FirebaseFirestore.instance
             .collection('rooms')
             .doc(widget.userEmail)
-            .update({
+            .set({
           'lastMessageTimeStamp': DateTime.now(),
           'messages': FieldValue.arrayUnion([
             {
@@ -123,7 +123,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               'timestamp': DateTime.now(),
             }
           ])
-        });
+        }, SetOptions(merge: true));
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
@@ -217,11 +217,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
         }
 
         // Check for errors in the upload response.
-        if (uploadResponse != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Audio Uploaded Successfully")),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Audio Uploaded Successfully")),
+        );
 
         // Retrieve public URL for the uploaded audio.
         final publicUrl =
@@ -231,7 +229,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         await FirebaseFirestore.instance
             .collection('rooms')
             .doc(widget.userEmail)
-            .update({
+            .set({
           'lastMessageTimeStamp': DateTime.now(),
           'messages': FieldValue.arrayUnion([
             {
@@ -242,7 +240,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               'timestamp': DateTime.now(),
             }
           ])
-        });
+        }, SetOptions(merge: true));
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Audio message uploaded successfully")),
@@ -304,7 +302,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     await FirebaseFirestore.instance
         .collection('rooms')
         .doc(widget.userEmail)
-        .update({
+        .set({
       'lastMessageTimeStamp': DateTime.now(),
       'messages': FieldValue.arrayUnion([
         {
@@ -314,7 +312,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
           'timestamp': DateTime.now(),
         }
       ])
-    });
+    }, SetOptions(merge: true));
     _controller.clear();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.scrollController.hasClients) {

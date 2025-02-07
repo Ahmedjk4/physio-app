@@ -71,6 +71,7 @@ dependencies:
   path_provider: ^2.1.5
   voice_message_package: ^2.2.1
   just_audio: ^0.9.46
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:

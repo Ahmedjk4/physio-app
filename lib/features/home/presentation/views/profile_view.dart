@@ -94,7 +94,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
           final role = userData['role'] as String;
           // Decide what to display based on role
           final displayRole =
-              (role.toLowerCase() == 'admin') ? 'Doctor' : 'User';
+              (role.toLowerCase() == 'admin') ? 'Doctor' : 'Patient';
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -122,6 +122,11 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
                     .copyWith(color: AppColors.textColorSecondary),
               ),
               const SizedBox(height: 20),
+              CustomButton(
+                  text: 'Reselect Parts',
+                  callback: () {
+                    context.push(AppRouter.bodyPartSelector);
+                  }),
               CustomButton(
                   text: 'Change Name',
                   callback: () {

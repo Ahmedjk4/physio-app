@@ -8,7 +8,6 @@ import 'package:physio_app/core/utils/colors.dart';
 import 'package:physio_app/core/utils/service_locator.dart';
 import 'package:physio_app/features/body_part_selector/data/models/body_parts_model.dart';
 import 'package:physio_app/firebase_options.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
