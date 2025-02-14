@@ -2,14 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:physio_app/core/helpers/showSnackBar.dart';
 import 'package:physio_app/core/types/text_form_field_types.dart';
 import 'package:physio_app/core/utils/colors.dart';
+import 'package:physio_app/core/utils/service_locator.dart';
 import 'package:physio_app/core/utils/text_styles.dart';
 import 'package:physio_app/core/widgets/custom_button.dart';
 import 'package:physio_app/core/widgets/custom_text_form_field.dart';
+import 'package:physio_app/features/auth/data/repos/auth_repo_impl.dart';
 
-class RegisterViewBody extends StatelessWidget {
+class RegisterViewBody extends StatefulWidget {
   const RegisterViewBody({super.key});
+
+  @override
+  State<RegisterViewBody> createState() => _RegisterViewBodyState();
+}
+
+class _RegisterViewBodyState extends State<RegisterViewBody> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +37,41 @@ class RegisterViewBody extends StatelessWidget {
             SizedBox(height: 100.0.h),
             const _Logo(),
             SizedBox(height: 50.0.h),
-            const _SocialButtons(),
-            SizedBox(height: 20.0.h),
+            // const _SocialButtons(),
+            // SizedBox(height: 20.0.h),
             const _DividerWithText(),
             SizedBox(height: 20.0.h),
-            const _RegisterForm(),
+            _RegisterForm(nameController, emailController, passwordController,
+                _formKey, _autovalidateMode),
             SizedBox(height: 20.0.h),
-            CustomButton(text: 'Continue', callback: () {}),
+            CustomButton(
+              text: 'Continue',
+              callback: () async {
+                if (mounted) {
+                  if (_formKey.currentState!.validate()) {
+                    await getIt
+                        .get<AuthRepoImpl>()
+                        .signUp(
+                          nameController.text,
+                          emailController.text,
+                          passwordController.text,
+                        )
+                        .then((value) {
+                      value.fold((f) {
+                        showSnackBar(context, f.message);
+                      }, (s) {
+                        showSnackBar(context, s.message);
+                        context.pop();
+                      });
+                    });
+                  } else {
+                    setState(() {
+                      _autovalidateMode = AutovalidateMode.always;
+                    });
+                  }
+                }
+              },
+            ),
             SizedBox(height: 20.0.h),
             LoginText(),
           ],
@@ -94,7 +136,15 @@ class _SocialButtons extends StatelessWidget {
         _buildSocialButton(
           color: Colors.yellow,
           icon: FontAwesomeIcons.google,
-          onPressed: () {},
+          onPressed: () async {
+            await getIt.get<AuthRepoImpl>().signInWithGoogle().then((value) {
+              value.fold((f) {
+                showSnackBar(context, f.message);
+              }, (s) {
+                showSnackBar(context, s.message);
+              });
+            });
+          },
         ),
         SizedBox(width: 20.0.w),
         _buildSocialButton(
@@ -142,7 +192,7 @@ class _DividerWithText extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0),
           child: Text(
-            "Or Using Email",
+            "Using Email And Password",
             style: TextStyles.bodyText1.copyWith(
               color: AppColors.textColorPrimary,
             ),
@@ -155,41 +205,46 @@ class _DividerWithText extends StatelessWidget {
 }
 
 class _RegisterForm extends StatelessWidget {
-  const _RegisterForm();
-
+  const _RegisterForm(this.nameController, this.emailController,
+      this.passwordController, this._formKey, this.autovalidateMode);
+  final TextEditingController nameController,
+      emailController,
+      passwordController;
+  final GlobalKey<FormState> _formKey;
+  final AutovalidateMode autovalidateMode;
   @override
   Widget build(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-
-    return Column(
-      children: [
-        CustomTextField(
-          hintText: 'Enter Your Name',
-          label: 'Name',
-          controller: nameController,
-          type: TextFormFieldTypes.name,
-          icon: Icons.person,
-          iconColor: Colors.blue,
-        ),
-        CustomTextField(
-          hintText: 'Enter Your Email',
-          label: 'Email',
-          controller: emailController,
-          type: TextFormFieldTypes.email,
-          icon: Icons.lock,
-          iconColor: Colors.amber,
-        ),
-        CustomTextField(
-          hintText: 'Enter Your Password',
-          label: 'Password',
-          controller: passwordController,
-          type: TextFormFieldTypes.password,
-          icon: Icons.lock,
-          iconColor: Colors.purple,
-        ),
-      ],
+    return Form(
+      key: _formKey,
+      autovalidateMode: autovalidateMode,
+      child: Column(
+        children: [
+          CustomTextField(
+            hintText: 'Enter Your Name',
+            label: 'Name',
+            controller: nameController,
+            type: TextFormFieldTypes.name,
+            icon: Icons.person,
+            iconColor: Colors.blue,
+          ),
+          CustomTextField(
+            hintText: 'Enter Your Email',
+            label: 'Email',
+            controller: emailController,
+            type: TextFormFieldTypes.email,
+            icon: Icons.lock,
+            iconColor: Colors.amber,
+          ),
+          CustomTextField(
+            hintText: 'Enter Your Password',
+            label: 'Password',
+            controller: passwordController,
+            type: TextFormFieldTypes.password,
+            icon: Icons.lock,
+            iconColor: Colors.purple,
+          ),
+        ],
+      ),
     );
   }
 }

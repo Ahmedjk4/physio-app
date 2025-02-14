@@ -47,6 +47,31 @@ dependencies:
   font_awesome_flutter: ^10.8.0
   body_part_selector: ^0.2.0
   stylish_bottom_bar: ^1.1.0
+  firebase_core: ^3.10.1
+  firebase_auth: ^5.4.1
+  dartz: ^0.10.1
+  get_it: ^8.0.3
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.14
+  google_sign_in: ^6.2.2
+  cloud_firestore: ^5.6.2
+  file_picker: ^8.3.1
+  firebase_storage: ^12.4.1
+  supabase_flutter: ^2.8.3
+  cached_network_image: ^3.4.1
+  avatars: ^3.0.2
+  colorize_text_avatar: ^1.0.2
+  shared_preferences: ^2.5.1
+  http: ^1.3.0
+  timezone: ^0.10.0
+  dart_openai: ^5.1.0
+  record: ^5.2.0
+  flutter_sound: ^9.20.5
+  permission_handler: ^11.3.1
+  path_provider: ^2.1.5
+  voice_message_package: ^2.2.1
+  just_audio: ^0.9.46
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:
