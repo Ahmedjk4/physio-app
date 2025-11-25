@@ -25,9 +25,9 @@ void main() async {
   await Hive.openBox<BodyPartsHiveWrapper>('bodyPartsBox');
   await Hive.openBox<List<String>>('diet');
   await Supabase.initialize(
-    url: 'https://lohceeqayhjedlmvdrcv.supabase.co',
+    url: 'https://srvxqsjzggfirmmufpkz.supabase.co',
     anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxvaGNlZXFheWhqZWRsbXZkcmN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg0NTQ4NTYsImV4cCI6MjA1NDAzMDg1Nn0.4ERoH6ElqH4M5y3QJFrEJ7AaOLD9qI-DH6dmfA3t_PA',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNydnhxc2p6Z2dmaXJtbXVmcGt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMjAwODAsImV4cCI6MjA3OTU5NjA4MH0.OPun0JQ-NHpaoZhgj-qOLv7inEoxQtyH1ql6PSDpwTs',
   );
   setupServiceLocator();
   runApp(const PhysioApp());

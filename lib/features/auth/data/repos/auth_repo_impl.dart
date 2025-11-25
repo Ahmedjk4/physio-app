@@ -9,10 +9,14 @@ import 'package:physio_app/features/auth/data/repos/auth_repo.dart';
 class AuthRepoImpl implements AuthRepo {
   @override
   Future<Either<Failure, Success>> signInWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     try {
-      await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       return right(Success('Logged in successfully'));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
@@ -36,23 +40,32 @@ class AuthRepoImpl implements AuthRepo {
       await FirebaseAuth.instance.signOut();
       return right(Success('Signed out successfully'));
     } catch (e) {
-      return left(Failure(
-          'An error occurred while signing out, please try again later.'));
+      return left(
+        Failure('An error occurred while signing out, please try again later.'),
+      );
     }
   }
 
   @override
   Future<Either<Failure, Success>> signUp(
-      String name, String email, String password) async {
+    String name,
+    String email,
+    String password,
+  ) async {
     try {
-      await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: password);
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       await FirebaseAuth.instance.signOut();
       await FirebaseAuth.instance.currentUser?.updateDisplayName(name);
       await FirebaseFirestore.instance.collection('users').doc(email).set({
         'name': name,
         'email': email,
         'role': 'user',
+      });
+      await FirebaseFirestore.instance.collection('rooms').doc(email).set({
+        'lastMessageTimeStamp': DateTime.now(),
       });
       return right(Success('Signed up successfully, Please Login'));
     } on FirebaseAuthException catch (e) {

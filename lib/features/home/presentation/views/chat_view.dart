@@ -33,9 +33,12 @@ class _ChatViewState extends State<ChatView> {
         .collection('users')
         .doc(currentUserEmail)
         .get();
-    setState(() {
-      hasAnsweredQuestions = snapshot.data()?['hasAnsweredQuestions'] ?? false;
-    });
+    if (mounted) {
+      setState(() {
+        hasAnsweredQuestions =
+            snapshot.data()?['hasAnsweredQuestions'] ?? false;
+      });
+    }
   }
 
   Future<Widget> _selectBodyBasedOnRole() async {

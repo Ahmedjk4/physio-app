@@ -27,21 +27,29 @@ class _ChatInputFieldState extends State<ChatInputField> {
   final FlutterSoundRecorder _recorder = FlutterSoundRecorder();
   bool _isRecording = false;
   String? _recordedFilePath;
+
   @override
   void initState() {
     super.initState();
     _initRecorder();
+    _controller.addListener(() {
+      setState(() {}); // Update UI when text changes
+    });
   }
 
   Future<void> _initRecorder() async {
-    var status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Microphone permission is required")),
-      );
-      return;
+    try {
+      var status = await Permission.microphone.request();
+      if (status != PermissionStatus.granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Microphone permission is required")),
+        );
+        return;
+      }
+      await _recorder.openRecorder();
+    } catch (e) {
+      debugPrint("Error requesting microphone permission: $e");
     }
-    await _recorder.openRecorder();
   }
 
   @override
@@ -176,7 +184,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
         }
         String uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}.m4a';
         final storageClient = Supabase.instance.client.storage;
-        final uploadResponse = await storageClient.from('audios').upload(
+        await storageClient.from('audios').upload(
               'public/$uniqueFileName',
               audioFile,
               fileOptions:
@@ -185,8 +193,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
         if (mounted && Navigator.canPop(context)) {
           Navigator.pop(context);
         }
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Audio Uploaded Successfully")),
+          const SnackBar(content: Text("Audio Uploaded Successfully")),
         );
 
         final publicUrl =
@@ -222,21 +231,79 @@ class _ChatInputFieldState extends State<ChatInputField> {
   void _showAttachmentOptions() {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
-          padding: const EdgeInsets.all(10),
-          height: 200,
-          child: GridView.count(
-            crossAxisCount: 4,
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(
+            color: Color(0xFF0f3460),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _buildOption(
-                icon: Icons.image,
-                label: 'Gallery',
-                onPressed: () async {
-                  Navigator.pop(context); // Close bottom sheet
-                  await _uploadImage();
-                },
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
+              const SizedBox(height: 20),
+              Text(
+                'إرفاق ملف',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildOption(
+                    icon: Icons.image,
+                    label: 'صورة',
+                    color: const Color(0xFF83332e),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      await _uploadImage();
+                    },
+                  ),
+                  _buildOption(
+                    icon: Icons.camera_alt,
+                    label: 'كاميرا',
+                    color: const Color(0xFFb11ccf),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Camera feature coming soon'),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildOption(
+                    icon: Icons.insert_drive_file,
+                    label: 'ملف',
+                    color: const Color(0xFF1a73e8),
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('File picker coming soon'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         );
@@ -247,17 +314,39 @@ class _ChatInputFieldState extends State<ChatInputField> {
   Widget _buildOption({
     required IconData icon,
     required String label,
+    required Color color,
     required VoidCallback onPressed,
   }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          icon: Icon(icon, size: 30, color: Colors.white),
-          onPressed: onPressed,
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 80,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color.withOpacity(0.4),
+            width: 1,
+          ),
         ),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 32, color: color),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -292,41 +381,110 @@ class _ChatInputFieldState extends State<ChatInputField> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(blurRadius: 2, color: Colors.grey.shade300)],
+        color: const Color(0xFF0f3460),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 8,
+            color: Colors.black26,
+            offset: const Offset(0, -2),
+          )
+        ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              style: TextStyles.bodyText1.copyWith(color: Colors.black54),
-              decoration: InputDecoration(
-                hintText: "Send Message",
-                border: InputBorder.none,
-                hintStyle: TextStyles.bodyText1.copyWith(color: Colors.black54),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1a1a2e),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: Colors.white12,
+                    width: 1,
+                  ),
+                ),
+                child: TextField(
+                  controller: _controller,
+                  style: TextStyles.bodyText1.copyWith(color: Colors.white),
+                  maxLines: null,
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    hintText: "اكتب رسالة...",
+                    border: InputBorder.none,
+                    hintStyle: TextStyles.bodyText1.copyWith(
+                      color: Colors.white38,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
               ),
             ),
-          ),
-          // Toggle button for recording audio.
-          IconButton(
-            icon: Icon(
-              _isRecording ? Icons.stop : Icons.mic,
-              color: Colors.black54,
+            const SizedBox(width: 8),
+            // Recording indicator
+            if (_isRecording)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.fiber_manual_record,
+                  color: Colors.red,
+                  size: 12,
+                ),
+              ),
+            // Toggle button for recording audio
+            Material(
+              color: _isRecording
+                  ? Colors.red.withOpacity(0.2)
+                  : Colors.transparent,
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: Icon(
+                  _isRecording ? Icons.stop_circle : Icons.mic,
+                  color: _isRecording ? Colors.red : Colors.white70,
+                  size: 26,
+                ),
+                onPressed: _toggleRecording,
+                tooltip: _isRecording ? 'إيقاف التسجيل' : 'تسجيل صوتي',
+              ),
             ),
-            onPressed: _toggleRecording,
-          ),
-          IconButton(
-            icon: const Icon(Icons.attach_file, color: Colors.black54),
-            onPressed: _showAttachmentOptions,
-          ),
-          IconButton(
-            icon: const Icon(Icons.send, color: Colors.black54),
-            onPressed: _sendMessage,
-          ),
-        ],
+            Material(
+              color: Colors.transparent,
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.attach_file,
+                  color: Colors.white70,
+                  size: 24,
+                ),
+                onPressed: _showAttachmentOptions,
+                tooltip: 'إرفاق ملف',
+              ),
+            ),
+            Material(
+              color: _controller.text.isEmpty
+                  ? Colors.transparent
+                  : const Color(0xFF83332e),
+              shape: const CircleBorder(),
+              child: IconButton(
+                icon: Icon(
+                  Icons.send_rounded,
+                  color:
+                      _controller.text.isEmpty ? Colors.white38 : Colors.white,
+                  size: 24,
+                ),
+                onPressed: _controller.text.isEmpty ? null : _sendMessage,
+                tooltip: 'إرسال',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:dart_openai/dart_openai.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -22,6 +23,7 @@ class _DietViewState extends State<DietView> {
   String? _diseases;
   String? _medications;
   String? _goal;
+  bool _isGenerating = false;
 
   List<String> diseases = ['السكري', 'ارتفاع ضغط الدم', 'مرض قلبي', 'None'];
   List<String> medications = ['Aspirin', 'Metformin', 'None'];
@@ -167,10 +169,31 @@ class _DietViewState extends State<DietView> {
                 );
               }).toList(),
             ),
+            if (_isGenerating)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(
+                      color: AppColors.secondaryColor,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'جاري إنشاء خطة النظام الغذائي...',
+                      style: TextStyles.bodyText1.copyWith(
+                        color: AppColors.textColorPrimary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             CustomButton(
-              callback: () {
-                sendDataToAI(context);
-              },
+              callback: _isGenerating
+                  ? () {}
+                  : () {
+                      sendDataToAI(context);
+                    },
               text: 'Submit Data',
             ),
             CustomButton(
@@ -185,10 +208,15 @@ class _DietViewState extends State<DietView> {
   }
 
   void sendDataToAI(BuildContext context) async {
+    setState(() {
+      _isGenerating = true;
+    });
+
     // Initialize the OpenAI instance
-    OpenAI.apiKey =
-        "g4a-rxzdjOvQPtsVK6oqqrZ2zgWRANPPAElS7NT"; // Replace with your OpenAI API key
-    OpenAI.baseUrl = "https://api.gpt4-all.xyz";
+    var apiKey =
+        "AIzaSyCPL2szrIw76fhoBXFTtPzj_CgUe01OcPw"; // Replace with your OpenAI API key
+    var baseUrl =
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
     // Null check for each field, assigning default values if null
     String age = _ageController.text.isNotEmpty ? _ageController.text : "N/A";
@@ -218,41 +246,67 @@ class _DietViewState extends State<DietView> {
 
     // Create a completion request
     try {
-      showSnackBar(context, 'Loading');
-      OpenAIChatCompletionModel completion = await OpenAI.instance.chat.create(
-        model: "gpt-4o-mini", // or any other available model
-        messages: [
-          OpenAIChatCompletionChoiceMessageModel(content: [
-            OpenAIChatCompletionChoiceMessageContentItemModel.text(prompt)
-          ], role: OpenAIChatMessageRole.system)
-        ],
-        temperature: 0.7, // Adjust based on creativity needed in the response
-      );
-
+      showSnackBar(context, 'Generating diet plan, please wait...');
+      Dio dio = Dio();
+      dio.options.headers["x-goog-api-key"] = apiKey;
+      dio.options.headers["Content-Type"] = "application/json";
       // Get the generated diet plan
-      String dietPlan = completion.choices.first.message.content?[0].text ??
-          "No plan generated";
+      String dietPlan;
+      try {
+        final response = await dio.post(baseUrl, data: {
+          "contents": [
+            {
+              "parts": [
+                {"text": prompt}
+              ]
+            }
+          ],
+        });
+        if (response.statusCode == 200) {
+          dietPlan = response.data['candidates'][0]['content']['parts'][0]
+                  ['text'] ??
+              "No plan generated";
+        } else {
+          dietPlan = "API error ${response.statusCode}: ${response.data}";
+          print("API error: ${response.statusCode} - ${response.data}");
+        }
+      } on DioError catch (e) {
+        dietPlan = "Request failed: ${e.message}";
+        print(
+            "DioError: ${e.response?.statusCode} ${e.response?.data} ${e.message}");
+      } catch (e) {
+        dietPlan = "Unexpected error: $e";
+        print("Unexpected error: $e");
+      }
       var dietBox = Hive.box<List<String>>('diet');
       List<String> dietList = dietBox.get('list') ?? [];
       dietList.add(dietPlan);
       await dietBox.put('list', dietList);
       // Show the response in a bottom sheet
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          return SingleChildScrollView(
-            // Make the content scrollable
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                dietPlan,
-                style: TextStyle(fontSize: 18),
+      if (mounted) {
+        setState(() {
+          _isGenerating = false;
+        });
+        showModalBottomSheet(
+          context: mounted ? context : context,
+          builder: (BuildContext context) {
+            return SingleChildScrollView(
+              // Make the content scrollable
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SelectableText(
+                  dietPlan,
+                  style: TextStyle(fontSize: 18),
+                ),
               ),
-            ),
-          );
-        },
-      );
+            );
+          },
+        );
+      }
     } catch (e) {
+      setState(() {
+        _isGenerating = false;
+      });
       // Show an error message using Snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error: $e")),

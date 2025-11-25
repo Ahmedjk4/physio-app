@@ -10,21 +10,46 @@ class ChatCubit extends Cubit<ChatState> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   late final StreamSubscription<DocumentSnapshot> _subscription;
 
-  ChatCubit(this.email) : super(ChatInitial()) {
-    _subscription =
-        firestore.collection('rooms').doc(email).snapshots().listen((event) {
-      if (!event.exists) return;
-      final data = event.data() as Map<String, dynamic>;
-      final messages = data['messages'] as List<dynamic>? ?? [];
-      if (!isClosed) {
-        try {
-          emit(ChatLoaded(messages: messages));
-        } catch (e) {
-          // In case an error occurs while emitting (e.g., after closing),
-          // we catch it so it doesn't crash the app.
-          // You can log the error if needed.
-          // print('Emit failed: $e');
+  ChatCubit(this.email) : super(ChatLoading()) {
+    _initializeChat();
+  }
+
+  void _initializeChat() {
+    _subscription = firestore.collection('rooms').doc(email).snapshots().listen(
+      (event) {
+        if (!isClosed) {
+          try {
+            if (!event.exists) {
+              emit(ChatLoaded(messages: []));
+              return;
+            }
+            final data = event.data();
+            if (data == null) {
+              emit(ChatLoaded(messages: []));
+              return;
+            }
+            final messages = data['messages'] as List<dynamic>? ?? [];
+            emit(ChatLoaded(messages: messages));
+          } catch (e) {
+            if (!isClosed) {
+              emit(ChatError(message: 'Failed to load messages'));
+            }
+          }
         }
+      },
+      onError: (error) {
+        if (!isClosed) {
+          emit(ChatError(
+              message: 'Connection error. Please check your internet.'));
+        }
+      },
+    );
+
+    // Add timeout for initial load
+    Future.delayed(const Duration(seconds: 10), () {
+      if (!isClosed && state is ChatLoading) {
+        emit(ChatError(
+            message: 'Loading timeout. Please check your connection.'));
       }
     });
   }
