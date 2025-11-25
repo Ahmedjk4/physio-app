@@ -119,6 +119,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
               : null,
           filled: true,
           fillColor: backgroundColor,
+          errorStyle: TextStyle(color: Colors.red),
           contentPadding: const EdgeInsets.all(20),
           border: InputBorder.none,
           enabledBorder: OutlineInputBorder(

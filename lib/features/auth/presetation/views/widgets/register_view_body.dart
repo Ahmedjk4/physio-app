@@ -259,8 +259,10 @@ class LoginText extends StatelessWidget {
       children: [
         Text(
           'Already Have An Account ?',
-          style:
-              TextStyles.bodyText1.copyWith(color: AppColors.textColorPrimary),
+          style: TextStyles.bodyText1.copyWith(
+            color: AppColors.textColorPrimary,
+            fontSize: 15.sp,
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -268,8 +270,10 @@ class LoginText extends StatelessWidget {
           },
           child: Text(
             'Go Back To Login',
+            overflow: TextOverflow.ellipsis,
             style: TextStyles.bodyText1.copyWith(
               color: AppColors.accentColor,
+              fontSize: 15.sp,
             ),
           ),
         ),

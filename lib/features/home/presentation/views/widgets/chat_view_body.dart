@@ -57,112 +57,143 @@ class _ChatViewBodyState extends State<ChatViewBody> {
         .collection('users')
         .doc(widget.currentUserEmail)
         .get();
+
+    final role = doc.data()?['role']?.toString().toLowerCase();
+    if (role == 'admin') {
+      return;
+    }
     if (doc.exists && doc.data()?['hasAnsweredQuestions'] == true && mounted) {
       setState(() {
         hasAnsweredQuestions = true;
       });
     } else {
-      _askUserQuestions();
+      if (role != 'admin') _askUserQuestions();
     }
   }
 
   void _askUserQuestions() async {
-    final answers = await showDialog<Map<String, String>>(
-      context: context,
-      builder: (context) {
-        final TextEditingController nameController = TextEditingController();
-        final TextEditingController ageController = TextEditingController();
-        final TextEditingController heightController = TextEditingController();
-        final TextEditingController weightController = TextEditingController();
-        final TextEditingController medsController = TextEditingController();
-        final TextEditingController diseasesController =
-            TextEditingController();
-        final TextEditingController surgeriesController =
-            TextEditingController();
-        final TextEditingController jobController = TextEditingController();
+    if (!mounted) return;
 
-        bool isMarried = false;
-        bool isSmoker = false;
-        bool doesExercise = false;
+    // Check user role first; if admin, don't show the modal sheet
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.currentUserEmail)
+        .get();
 
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text("الرجاء إدخال بياناتك"),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(labelText: "الاسم")),
-                    TextField(
-                        controller: ageController,
-                        decoration: const InputDecoration(labelText: "السن")),
-                    TextField(
-                        controller: heightController,
-                        decoration: const InputDecoration(labelText: "الطول")),
-                    TextField(
-                        controller: weightController,
-                        decoration: const InputDecoration(labelText: "الوزن")),
-                    TextField(
-                        controller: medsController,
-                        decoration:
-                            const InputDecoration(labelText: "الأدوية")),
-                    TextField(
-                        controller: diseasesController,
-                        decoration:
-                            const InputDecoration(labelText: "الأمراض")),
-                    TextField(
-                        controller: surgeriesController,
-                        decoration: const InputDecoration(
-                            labelText: "العمليات الجراحية")),
-                    TextField(
-                        controller: jobController,
-                        decoration:
-                            const InputDecoration(labelText: "الوظيفة")),
-                    SwitchListTile(
-                      value: isMarried,
-                      onChanged: (val) => setState(() => isMarried = val),
-                      title: const Text("متزوج؟"),
+    final role = userDoc.data()?['role']?.toString().toLowerCase();
+    if (role == 'admin') {
+      return;
+    }
+
+    final answers = await (mounted
+        ? showDialog<Map<String, String>>(
+            context: context,
+            builder: (context) {
+              final TextEditingController nameController =
+                  TextEditingController();
+              final TextEditingController ageController =
+                  TextEditingController();
+              final TextEditingController heightController =
+                  TextEditingController();
+              final TextEditingController weightController =
+                  TextEditingController();
+              final TextEditingController medsController =
+                  TextEditingController();
+              final TextEditingController diseasesController =
+                  TextEditingController();
+              final TextEditingController surgeriesController =
+                  TextEditingController();
+              final TextEditingController jobController =
+                  TextEditingController();
+
+              bool isMarried = false;
+              bool isSmoker = false;
+              bool doesExercise = false;
+
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text("الرجاء إدخال بياناتك"),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          TextField(
+                              controller: nameController,
+                              decoration:
+                                  const InputDecoration(labelText: "الاسم")),
+                          TextField(
+                              controller: ageController,
+                              decoration:
+                                  const InputDecoration(labelText: "السن")),
+                          TextField(
+                              controller: heightController,
+                              decoration:
+                                  const InputDecoration(labelText: "الطول")),
+                          TextField(
+                              controller: weightController,
+                              decoration:
+                                  const InputDecoration(labelText: "الوزن")),
+                          TextField(
+                              controller: medsController,
+                              decoration:
+                                  const InputDecoration(labelText: "الأدوية")),
+                          TextField(
+                              controller: diseasesController,
+                              decoration:
+                                  const InputDecoration(labelText: "الأمراض")),
+                          TextField(
+                              controller: surgeriesController,
+                              decoration: const InputDecoration(
+                                  labelText: "العمليات الجراحية")),
+                          TextField(
+                              controller: jobController,
+                              decoration:
+                                  const InputDecoration(labelText: "الوظيفة")),
+                          SwitchListTile(
+                            value: isMarried,
+                            onChanged: (val) => setState(() => isMarried = val),
+                            title: const Text("متزوج؟"),
+                          ),
+                          SwitchListTile(
+                            value: isSmoker,
+                            onChanged: (val) => setState(() => isSmoker = val),
+                            title: const Text("مدخن؟"),
+                          ),
+                          SwitchListTile(
+                            value: doesExercise,
+                            onChanged: (val) =>
+                                setState(() => doesExercise = val),
+                            title: const Text("تمارس الرياضة؟"),
+                          ),
+                        ],
+                      ),
                     ),
-                    SwitchListTile(
-                      value: isSmoker,
-                      onChanged: (val) => setState(() => isSmoker = val),
-                      title: const Text("مدخن؟"),
-                    ),
-                    SwitchListTile(
-                      value: doesExercise,
-                      onChanged: (val) => setState(() => doesExercise = val),
-                      title: const Text("تمارس الرياضة؟"),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      'الاسم': nameController.text,
-                      'السن': ageController.text,
-                      'الطول': heightController.text,
-                      'الوزن': weightController.text,
-                      'الأدوية': medsController.text,
-                      'الأمراض': diseasesController.text,
-                      'العمليات الجراحية': surgeriesController.text,
-                      'الوظيفة': jobController.text,
-                      'متزوج': isMarried ? "نعم" : "لا",
-                      'مدخن': isSmoker ? "نعم" : "لا",
-                      'يمارس الرياضة': doesExercise ? "نعم" : "لا",
-                    });
-                  },
-                  child: const Text("حفظ"),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, {
+                            'الاسم': nameController.text,
+                            'السن': ageController.text,
+                            'الطول': heightController.text,
+                            'الوزن': weightController.text,
+                            'الأدوية': medsController.text,
+                            'الأمراض': diseasesController.text,
+                            'العمليات الجراحية': surgeriesController.text,
+                            'الوظيفة': jobController.text,
+                            'متزوج': isMarried ? "نعم" : "لا",
+                            'مدخن': isSmoker ? "نعم" : "لا",
+                            'يمارس الرياضة': doesExercise ? "نعم" : "لا",
+                          });
+                        },
+                        child: const Text("حفظ"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          )
+        : Future.value(null));
 
     if (answers != null) {
       await FirebaseFirestore.instance
@@ -175,9 +206,11 @@ class _ChatViewBodyState extends State<ChatViewBody> {
         },
         SetOptions(merge: true),
       );
-      setState(() {
-        hasAnsweredQuestions = true;
-      });
+      if (mounted) {
+        setState(() {
+          hasAnsweredQuestions = true;
+        });
+      }
     }
   }
 

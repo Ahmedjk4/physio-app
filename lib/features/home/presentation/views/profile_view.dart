@@ -51,7 +51,7 @@ class _ProfileViewBodyState extends State<ProfileViewBody> {
         .collection('users')
         .doc(currentUserEmail)
         .get();
-    print(doc);
+
     final data = doc.data();
     final name = data?['name'] as String? ?? 'No Name';
     final role = data?['role'] as String? ?? 'user';
